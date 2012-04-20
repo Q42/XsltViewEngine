@@ -16,7 +16,7 @@ An XSLT view engine for asp.net mvc that comes with a plugin architecture.
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:Html="urn:HtmlHelper"
                 xmlns:ext="http://exslt.org/common"
-                xmlns:ArtObject="urn:myplugin">
+                xmlns:myplugin="urn:myplugin">
      .... SNAP
 
      <xsl:value-of select="myplugin:MyMethod(.)"/><br/>
