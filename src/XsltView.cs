@@ -11,6 +11,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using System.Xml.Xsl;
 using System.Web.Mvc.Html;
+using System.Linq;
 
 namespace Q42.Mvc.XsltViewEngine
 {
@@ -18,7 +19,7 @@ namespace Q42.Mvc.XsltViewEngine
 
   public class XsltView : IView, IViewDataContainer
   {
-    private static string viewsPath = resolvePath("~/Views");
+    private static string defaultViewsPath = resolvePath("~/Views");
     private XslCompiledTransform xsl = null;
     private XsltArgumentList arguments = null;
     private ViewContext viewContext = null;
@@ -29,6 +30,7 @@ namespace Q42.Mvc.XsltViewEngine
       xsl = getXsl(partialPath);
       arguments = new XsltArgumentList();
       this.pluginConstructors = pluginConstructors;
+
     }
 
     public XsltView(ControllerContext controllerContext, string viewPath, string masterPath, Dictionary<string, PluginConstructor> pluginConstructors)
@@ -115,14 +117,28 @@ namespace Q42.Mvc.XsltViewEngine
         xsl.Load(fileName);
 
         // make cache dependant on filechanges within the view path
-        DirectoryInfo dir = new DirectoryInfo(viewsPath);
-        DirectoryInfo[] dirs = dir.GetDirectories("*", SearchOption.AllDirectories);
-        List<string> dirList = new List<string>();
-        dirList.Add(dir.FullName);
-        foreach (DirectoryInfo d in dirs) dirList.Add(d.FullName);
+        // also try to add the current filename as it might live outside of ~/Views (defaultViewsPath);
+        var viewDir = Path.GetDirectoryName(fileName);
+        var viewDirs = GetDirectories(viewDir);
+        var defaultViewDirs = GetDirectories(defaultViewsPath);
+
+        var dirList = viewDirs.Concat(defaultViewDirs).DistinctBy(s => s);
         HttpRuntime.Cache.Insert(cacheKey, xsl, new CacheDependency(dirList.ToArray()));
       }
       return xsl;
+    }
+
+    private static IEnumerable<string> GetDirectories(string path)
+    {
+      if (!Directory.Exists(path))
+        return Enumerable.Empty<string>();
+
+      DirectoryInfo dir = new DirectoryInfo(path);
+      DirectoryInfo[] dirs = dir.GetDirectories("*", SearchOption.AllDirectories);
+      List<string> dirList = new List<string>();
+      dirList.Add(dir.FullName);
+      foreach (DirectoryInfo d in dirs) dirList.Add(d.FullName);
+      return dirList;
     }
 
     /// <summary>

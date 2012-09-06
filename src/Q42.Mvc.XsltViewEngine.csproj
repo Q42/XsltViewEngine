@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="BlockRenderer.cs" />
     <Compile Include="CapturingResponseFilter.cs" />
+    <Compile Include="DistinctByExtension.cs" />
     <Compile Include="HtmlHelperWrapper.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
