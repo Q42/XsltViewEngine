@@ -104,6 +104,10 @@ namespace Q42.Mvc.XsltViewEngine
       foreach (string prefix in plugins.Keys)
       {
         Plugin plugin = plugins[prefix];
+        var extensionObject = xslArgs.GetExtensionObject(plugin.NamespaceUri);
+        if (extensionObject != null)
+          xslArgs.RemoveExtensionObject(plugin.NamespaceUri);
+
         xslArgs.AddExtensionObject(plugin.NamespaceUri, plugin);
       }
     }
