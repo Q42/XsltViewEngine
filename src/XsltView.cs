@@ -12,10 +12,16 @@ using System.Xml.XPath;
 using System.Xml.Xsl;
 using System.Web.Mvc.Html;
 using System.Linq;
+using System.Text;
 
 namespace Q42.Mvc.XsltViewEngine
 {
   public delegate object PluginConstructor(ViewContext viewContext, IViewDataContainer viewDataContainer);
+
+  public sealed class Utf8StringWriter : StringWriter
+  {
+    public override Encoding Encoding { get { return Encoding.UTF8; } }
+  }
 
   public class XsltView : IView, IViewDataContainer
   {
@@ -83,8 +89,10 @@ namespace Q42.Mvc.XsltViewEngine
       // set the mediatype
       response.ContentType = String.IsNullOrEmpty(mediaType) ? "text/html" : mediaType;
 
-      // transform using the correct model
-      StringWriter sw = new StringWriter();
+      // use this helper class to avoid creating a document that advertises itself incorrectly as utf-16
+      // see: http://stackoverflow.com/questions/1564718/using-stringwriter-for-xml-serialization#1564727
+      StringWriter sw = new Utf8StringWriter(); 
+
       using (XmlWriter xmlWriter = XmlWriter.Create(sw, xsl.OutputSettings))
       {
         xsl.Transform(new XDocument().CreateReader(), arguments, xmlWriter);
