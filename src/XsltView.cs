@@ -122,7 +122,14 @@ namespace Q42.Mvc.XsltViewEngine
       if (xsl == null)
       {
         xsl = new XslCompiledTransform(true);
-        xsl.Load(fileName);
+        try
+        {
+          xsl.Load(fileName);
+        }
+        catch(Exception ex)
+        {
+          throw new Exception("Error loading " + fileName, ex);
+        }
 
         // make cache dependant on filechanges within the view path
         // also try to add the current filename as it might live outside of ~/Views (defaultViewsPath);
